@@ -67,6 +67,17 @@
             word-wrap: break-word;
         }
 
+        .result-group {
+            margin-bottom: 20px;
+        }
+
+        .result-group h2 {
+            font-size: 1.2em;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
         .result-item {
             padding: 10px;
             margin-bottom: 10px;
@@ -97,29 +108,13 @@
             flex-grow: 1;
             overflow-wrap: break-word;
         }
-
-        .copy-button {
-            margin-left: auto;
-            background-color: #f0f2f5;
-            color: #333;
-            border: 1px solid #ccc;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .copy-button:hover {
-            background-color: #e0e0e0;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Invidious API Checker</h1>
         <p>確認したいInvidiousのURLを複数入力してください。<br>どんな形式のテキストからでもURLを自動で抽出します。</p>
-        <textarea id="urlInput" rows="10" placeholder="例:&#10;https://invidious.snopyta.org&#10;Invidiousのインスタンスはこちら！ https://yt.artemislena.eu&#10;https://inv.nampre.xyz, https://inv.tux.im"></textarea>
+        <textarea id="urlInput" rows="10" placeholder="例:&#10;https://invidious.snopyta.org&#10;https://yt.artemislena.eu&#10;https://inv.nampre.xyz, https://inv.tux.im&#10;&#34;https://nyc1.iv.ggtyler.dev&#34;, &#34;https://cal1.iv.ggtyler.dev&#34;"></textarea>
         <button id="checkButton">チェック</button>
         <div id="results"></div>
     </div>
@@ -130,7 +125,7 @@
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
 
-            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const urlRegex = /(https?:\/\/[^\s",]+)/g;
             const urls = urlInput.match(urlRegex) || [];
 
             if (urls.length === 0) {
@@ -140,12 +135,14 @@
 
             resultsDiv.innerHTML = '<p>チェック中...しばらくお待ちください。</p>';
 
+            const successUrls = [];
+            const failureUrls = [];
+
             for (const url of urls) {
-                let isSuccess = false;
-                // 一般的な動画IDを使用
                 const videoId = '3L9syQJmjI8'; 
                 const apiEndpoint = `${url.replace(/\/$/, '')}/api/v1/videos/${videoId}`;
 
+                let isSuccess = false;
                 try {
                     const response = await fetch(apiEndpoint, {
                         method: 'GET',
@@ -162,13 +159,45 @@
                 } catch (error) {
                     console.error(`Error checking ${url}:`, error);
                 }
-
-                const resultItem = document.createElement('div');
-                resultItem.className = `result-item ${isSuccess ? 'success' : 'failure'}`;
-                const icon = isSuccess ? '✅' : '❎';
                 
-                resultItem.innerHTML = `<span class="icon">${icon}</span><span class="url">${url}</span>`;
-                resultsDiv.appendChild(resultItem);
+                if (isSuccess) {
+                    successUrls.push(url);
+                } else {
+                    failureUrls.push(url);
+                }
+            }
+
+            // チェックが完了したら結果を表示
+            resultsDiv.innerHTML = '';
+            
+            if (successUrls.length > 0) {
+                const successGroup = document.createElement('div');
+                successGroup.className = 'result-group';
+                successGroup.innerHTML = '<h2>✅ 利用可能なURL</h2>';
+                successUrls.forEach(url => {
+                    const item = document.createElement('div');
+                    item.className = 'result-item success';
+                    item.innerHTML = `<span class="icon">✅</span><span class="url">${url}</span>`;
+                    successGroup.appendChild(item);
+                });
+                resultsDiv.appendChild(successGroup);
+            }
+
+            if (failureUrls.length > 0) {
+                const failureGroup = document.createElement('div');
+                failureGroup.className = 'result-group';
+                failureGroup.innerHTML = '<h2>❎ 利用できないURL</h2>';
+                failureUrls.forEach(url => {
+                    const item = document.createElement('div');
+                    item.className = 'result-item failure';
+                    item.innerHTML = `<span class="icon">❎</span><span class="url">${url}</span>`;
+                    failureGroup.appendChild(item);
+                });
+                resultsDiv.appendChild(failureGroup);
+            }
+
+            if (successUrls.length === 0 && failureUrls.length === 0) {
+                resultsDiv.innerHTML = '<p>有効なURLが見つかりませんでした。</p>';
             }
         });
     </script>
