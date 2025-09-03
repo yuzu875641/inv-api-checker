@@ -114,7 +114,7 @@
     <div class="container">
         <h1>Invidious API Checker</h1>
         <p>確認したいInvidiousのURLを複数入力してください。<br>どんな形式のテキストからでもURLを自動で抽出します。</p>
-        <textarea id="urlInput" rows="10" placeholder="例:&#10;https://invidious.snopyta.org&#10;https://yt.artemislena.eu&#10;https://inv.nampre.xyz, https://inv.tux.im&#10;&#34;https://nyc1.iv.ggtyler.dev&#34;, &#34;https://cal1.iv.ggtyler.dev&#34;"></textarea>
+        <textarea id="urlInput" rows="10" placeholder="URL"></textarea>
         <button id="checkButton">チェック</button>
         <div id="results"></div>
     </div>
@@ -139,7 +139,7 @@
             const failureUrls = [];
 
             for (const url of urls) {
-                const videoId = '3L9syQJmjI8'; 
+                const videoId = 'TrBJoJOl6nQ'; 
                 const apiEndpoint = `${url.replace(/\/$/, '')}/api/v1/videos/${videoId}`;
 
                 let isSuccess = false;
@@ -173,11 +173,11 @@
             if (successUrls.length > 0) {
                 const successGroup = document.createElement('div');
                 successGroup.className = 'result-group';
-                successGroup.innerHTML = '<h2>✅ 利用可能なURL</h2>';
+                successGroup.innerHTML = '<h2>利用可能なURL</h2>';
                 successUrls.forEach(url => {
                     const item = document.createElement('div');
                     item.className = 'result-item success';
-                    item.innerHTML = `<span class="icon">✅</span><span class="url">${url}</span>`;
+                    item.innerHTML = `<span class="icon"></span><span class="url">${url}</span>`;
                     successGroup.appendChild(item);
                 });
                 resultsDiv.appendChild(successGroup);
@@ -186,11 +186,11 @@
             if (failureUrls.length > 0) {
                 const failureGroup = document.createElement('div');
                 failureGroup.className = 'result-group';
-                failureGroup.innerHTML = '<h2>❎ 利用できないURL</h2>';
+                failureGroup.innerHTML = '<h2>利用できないURL</h2>';
                 failureUrls.forEach(url => {
                     const item = document.createElement('div');
                     item.className = 'result-item failure';
-                    item.innerHTML = `<span class="icon">❎</span><span class="url">${url}</span>`;
+                    item.innerHTML = `<span class="icon"></span><span class="url">${url}</span>`;
                     failureGroup.appendChild(item);
                 });
                 resultsDiv.appendChild(failureGroup);
